@@ -1,0 +1,17 @@
+{
+  "name": "multiroot",
+  "version": "1.0.0",
+  "description": "A static file server with > 1 document root",
+  "scripts": {
+    "test": "node test"
+  },
+  "dependencies": {
+    "ecstatic": "^1.4.1"
+  },
+  "devDependencies": {
+    "tape": "^4.6.0"
+  },
+  "repository": "https://github.com/jessetane/multiroot",
+  "author": "jesse.tane@gmail.com",
+  "license": "MIT"
+}
