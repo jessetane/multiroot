@@ -11,6 +11,14 @@ Wanted an embeddable file server that could be reconfigured dynamically for smal
 ```javascript
 var server = new MultiRoot({ port: 8080 })
 
+server.on('serve', path => {
+  console.log('serve', path)
+})
+
+server.on('listen', port => {
+  console.log('listening on ' + port) // 8080
+})
+
 server.apps = {
   a: {
     root: __dirname,
@@ -32,14 +40,6 @@ server.names = {
     appId: 'b'
   }
 }
-
-server.on('serve', path => {
-  console.log('serve', path)
-})
-
-server.on('listen', port => {
-  console.log('listening on ' + port) // 8080
-})
 
 server.reload()
 ```

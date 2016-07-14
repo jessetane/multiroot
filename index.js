@@ -5,7 +5,9 @@ var ecstatic = require('ecstatic')
 module.exports = class FileServer extends EventEmitter {
   constructor (opts = {}) {
     super()
-    this._onhttpRequest = this._onhttpRequest.bind(this)
+
+    // port to listen on
+    this.port = opts.port || 80
 
     // public state
     this.apps = {}
@@ -14,10 +16,8 @@ module.exports = class FileServer extends EventEmitter {
     // one per unique path
     this._handlers = {}
 
-    // http server to handle domain validation
-    this.port = opts.port || 80
     this._httpServer = new http.Server()
-    this._httpServer.on('request', this._onhttpRequest)
+    this._httpServer.on('request', this._onhttpRequest.bind(this))
     this._httpServer.listen(this.port, err => {
       if (err) throw err
       this.emit('listen', this.port)
