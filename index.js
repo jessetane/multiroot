@@ -1,6 +1,7 @@
 var EventEmitter = require('events')
 var http = require('http')
 var ecstatic = require('ecstatic')
+var basicAuth = require('basic-auth')
 
 module.exports = class FileServer extends EventEmitter {
   constructor (opts = {}) {
@@ -73,6 +74,15 @@ module.exports = class FileServer extends EventEmitter {
     var app = appId && this.apps[appId]
     var handler = app && this._handlers[app.root]
     if (handler) {
+      if (app.auth) {
+        var auth = basicAuth(req)
+        if (!auth || auth.name !== app.auth.name || auth.pass !== app.auth.password) {
+          res.statusCode = 401
+          res.setHeader('WWW-Authenticate', `Basic realm="${name}"`)
+          res.end('access denied')
+          return
+        }
+      }
       if (app.singlePage) {
         handler(req, res, () => {
           req.url = '/'
