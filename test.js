@@ -35,48 +35,6 @@ tape('single path', t => {
   server.reload()
 })
 
-tape('basic auth', t => {
-  t.plan(3)
-
-  server.apps.a = {
-    root: __dirname,
-    auth: {
-      name: 'a',
-      password: 'secret'
-    }
-  }
-
-  http.request({
-    path: '/index.js',
-    port: 7357,
-  })
-    .on('response', res => {
-      var data = ''
-      res.on('data', d => data += d)
-      res.on('end', () => {
-        t.equal(res.statusCode, 401)
-        t.equal(data, 'access denied')
-      })
-    })
-    .end()
-
-  http.request({
-    path: '/index.js',
-    port: 7357,
-    headers: {
-      authorization: 'Basic ' + Buffer('a:secret').toString('base64')
-    }
-  })
-    .on('response', res => {
-      var data = ''
-      res.on('data', d => data += d)
-      res.on('end', () => {
-        t.equal(data, fs.readFileSync(__dirname + '/index.js', 'utf8'))
-      })
-    })
-    .end()
-})
-
 tape('add path', t => {
   t.plan(2)
 

@@ -6,7 +6,6 @@
     "test": "node test"
   },
   "dependencies": {
-    "basic-auth": "^1.0.4",
     "ecstatic": "^1.4.1"
   },
   "devDependencies": {
