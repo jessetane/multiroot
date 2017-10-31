@@ -8,6 +8,7 @@ module.exports = class FileServer extends EventEmitter {
 
     // port to listen on
     this.port = opts.port || 80
+    this.ecstaticOpts = opts.ecstatic || { cache: 'no-cache' }
 
     // public state
     this.apps = {}
@@ -36,13 +37,17 @@ module.exports = class FileServer extends EventEmitter {
     for (var id in this.apps) {
       var app = this.apps[id]
       if (app && app.root) {
-        active[app.root] = true
-        if (!this._handlers[app.root]) {
-          this._createHandler(app.root)
+        var path = app.root
+        var handler = this._handlers[path]
+        if (!handler) {
+          this._createHandler(app)
+        } else if (handler._multirootApp !== app) {
+          this._createHandler(app, true)
         }
+        active[path] = true
       }
     }
-    for (var path in this._handlers) {
+    for (path in this._handlers) {
       if (!active[path]) {
         this._destroyHandler(path)
       }
@@ -54,16 +59,18 @@ module.exports = class FileServer extends EventEmitter {
     res.end('not found')
   }
 
-  _createHandler (path) {
-    var handler = ecstatic(path, { cache: 'no-cache' })
+  _createHandler (app, change = false) {
+    var path = app.root
+    var handler = ecstatic(path, app.ecstatic || this.ecstaticOpts)
+    handler._multirootApp = app
     this._handlers[path] = handler
-    this.emit('serve', path)
+    this.emit(change ? 'change' : 'serve', path, app)
   }
 
   _destroyHandler (path) {
     var handler = this._handlers[path]
     delete this._handlers[path]
-    this.emit('unserve', path)
+    this.emit('unserve', path, handler._multirootApp)
   }
 
   _onhttpRequest (req, res) {
