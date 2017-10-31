@@ -105,6 +105,36 @@ tape('change path', t => {
   server.reload()
 })
 
+tape('pass through ecstatic opts', t => {
+  t.plan(2)
+
+  http.request({
+    path: '/cli.js',
+    port: 7357,
+    headers: {
+      host: 'b'
+    }
+  })
+    .on('response', res => {
+      t.equal(res.headers['cache-control'], 'public,max-age=999')
+      var data = ''
+      res.on('data', d => data += d)
+      res.on('end', () => {
+        t.equal(data, fs.readFileSync(__dirname + '/node_modules/mime/cli.js', 'utf8'))
+      })
+    })
+    .end()
+
+  server.apps.b = {
+    root: server.apps.b.root,
+    ecstatic: {
+      cache: 'public,max-age=999'
+    }
+  }
+
+  server.reload()
+})
+
 tape('remove path', t => {
   t.plan(2)
 
