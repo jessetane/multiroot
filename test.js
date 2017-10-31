@@ -41,7 +41,7 @@ tape('add path', t => {
   server.once('serve', path => {
     t.equal(path, __dirname + '/node_modules/ecstatic')
     http.request({
-      path: '/test.js',
+      path: '/example/core.js',
       port: 7357,
       headers: {
         host: 'b'
@@ -51,7 +51,7 @@ tape('add path', t => {
         var data = ''
         res.on('data', d => data += d)
         res.on('end', () => {
-          t.equal(data, fs.readFileSync(__dirname + '/node_modules/ecstatic/test.js', 'utf8'))
+          t.equal(data, fs.readFileSync(__dirname + '/node_modules/ecstatic/example/core.js', 'utf8'))
         })
       })
       .end()
