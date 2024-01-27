@@ -76,7 +76,7 @@ module.exports = class FileServer extends EventEmitter {
   _onhttpRequest (req, res) {
     this.emit('request', req, res)
     var name = this.names[req.headers.host.split(':')[0]]
-    var appId = name && name.appId
+    var appId = name?.appId || name
     var app = appId && this.apps[appId]
     var handler = app && this._handlers[app.root]
     if (handler) {
