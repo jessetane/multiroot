@@ -6,7 +6,7 @@
     "test": "node test"
   },
   "dependencies": {
-    "ecstatic": "^3.0.0"
+    "ecstatic": "^4.1.4"
   },
   "devDependencies": {
     "tape": "^4.6.0"
