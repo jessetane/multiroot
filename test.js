@@ -162,6 +162,41 @@ tape('remove path', t => {
   server.reload()
 })
 
+tape('guard null bytes, missing host and prototype keys', t => {
+  t.plan(3)
+
+  http.request({
+    path: '/%00.aws/%00config',
+    port: 7357,
+    headers: { host: 'localhost' }
+  })
+    .on('response', res => {
+      t.equal(res.statusCode, 400)
+      res.resume()
+    })
+    .end()
+
+  const s = require('net').connect(7357, '127.0.0.1', () => {
+    s.write('GET /index.js HTTP/1.0\r\n\r\n')
+  })
+  let raw = ''
+  s.on('data', d => { raw += d })
+  s.on('end', () => {
+    t.match(raw, /^HTTP\/1\.1 404 Not Found\r\n/)
+  })
+
+  http.request({
+    path: '/index.js',
+    port: 7357,
+    headers: { host: 'constructor' }
+  })
+    .on('response', res => {
+      t.equal(res.statusCode, 404)
+      res.resume()
+    })
+    .end()
+})
+
 tape('close', t => {
   t.plan(1)
 

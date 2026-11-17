@@ -75,10 +75,16 @@ module.exports = class FileServer extends EventEmitter {
 
   _onhttpRequest (req, res) {
     this.emit('request', req, res)
-    var name = this.names[req.headers.host.split(':')[0]]
+    if (!req.url || req.url.includes('\0') || /%00/.test(req.url)) {
+      res.statusCode = 400
+      res.end('bad request')
+      return
+    }
+    var host = (req.headers.host || '').split(':')[0].toLowerCase()
+    var name = Object.hasOwn(this.names, host) ? this.names[host] : null
     var appId = name?.appId || name
-    var app = appId && this.apps[appId]
-    var handler = app && this._handlers[app.root]
+    var app = appId && Object.hasOwn(this.apps, appId) ? this.apps[appId] : null
+    var handler = app && Object.hasOwn(this._handlers, app.root) ? this._handlers[app.root] : null
     if (handler) {
       if (app.singlePage) {
         handler(req, res, () => {
